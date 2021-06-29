@@ -28,9 +28,12 @@ import os
 
 from vivarium.core.process import Process
 from vivarium.core.composition import (
-    simulate_process,
+    process_in_experiment,
+    simulate_experiment,
     PROCESS_OUT_DIR,
 )
+from vivarium.library.dict_utils import tuplify_port_dicts
+from vivarium.library.units import units, remove_units
 from vivarium.plots.simulation_output import plot_simulation_output
 
 # vivarium_convenience imports
@@ -545,21 +548,6 @@ def test_convenience_kinetics(end_time=2520):
     return simulate_experiment(experiment, settings)
 
 
-def test_convenience_kinetics_correlated_to_reference():
-    timeseries = test_convenience_kinetics()
-    flattened = flatten_timeseries(timeseries)
-    reference_timeseries = load_timeseries(
-        os.path.join(REFERENCE_DATA_DIR, NAME + '.csv'))
-    assert_timeseries_close(
-        flattened, reference_timeseries,
-        tolerances={
-            'internal_pyr_c': 9,
-            'internal_pep_c': 9,
-            'internal_g6p_c': 9,
-        }
-    )
-
-
 def main():
     out_dir = os.path.join(PROCESS_OUT_DIR, NAME)
     if not os.path.exists(out_dir):
@@ -569,7 +557,6 @@ def main():
 
     plot_settings = {}
     plot_simulation_output(timeseries, plot_settings, out_dir)
-    save_timeseries(timeseries, out_dir)
 
 
 # run module with python vivarium_convenience/processes/convenience_kinetics.py

@@ -21,14 +21,14 @@ setup(
     license='MIT',
     entry_points={
         'console_scripts': []},
-    short_description='provides a vivarium process with a configurable convenience kinetics',  # TODO: Describe your project briefely.
+    short_description='provides a vivarium process with a configurable convenience kinetics',
     long_description=long_description,
     long_description_content_type='text/markdown',
     package_data={},
     include_package_data=True,
     install_requires=[
         'vivarium-core>=0.3.0',
+        'vivarium-multibody',
         'pytest',
-        # TODO: Add other dependencies.
     ],
 )

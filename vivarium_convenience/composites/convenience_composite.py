@@ -84,7 +84,10 @@ def test_convenience_composite(total_time=2520):
         },
         'total_time': total_time}
 
-    experiment = composite_in_experiment(composite)
+    experiment = composite_in_experiment(
+        composite=composite,
+        settings=settings,
+        initial_state=initial_state)
     data = simulate_experiment(experiment, settings)
     return data
 

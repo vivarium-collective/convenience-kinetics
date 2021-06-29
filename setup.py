@@ -7,22 +7,21 @@ with open("README.md", 'r') as readme:
     long_description = readme.read()
 
 setup(
-    name='',  # TODO: Put your package name here.
+    name='vivarium-convenience',  # TODO: Put your package name here.
     version='0.0.1',
     packages=[
-        # TODO: Replace 'template' with the name of your folder.
-        'template',
-        'template.processes',
-        'template.composites',
-        'template.experiments',
+        'vivarium_convenience',
+        'vivarium_convenience.processes',
+        'vivarium_convenience.composites',
+        'vivarium_convenience.experiments',
     ],
-    author='',  # TODO: Put your name here.
-    author_email='',  # TODO: Put your email here.
-    url='',  # TODO: Put your project URL here.
-    license='',  # TODO: Choose a license.
+    author='Eran Agmon',
+    author_email='agmon.eran@gmail.com',
+    url='',
+    license='MIT',
     entry_points={
         'console_scripts': []},
-    short_description='',  # TODO: Describe your project briefely.
+    short_description='provides a vivarium process with a configurable convenience kinetics',  # TODO: Describe your project briefely.
     long_description=long_description,
     long_description_content_type='text/markdown',
     package_data={},

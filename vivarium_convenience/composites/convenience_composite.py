@@ -7,11 +7,12 @@ import os
 
 from vivarium.core.composer import Composer
 from vivarium.core.composition import (
-    process_in_experiment,
+    composite_in_experiment,
     simulate_experiment,
     COMPOSITE_OUT_DIR,
 )
 from vivarium.plots.simulation_output import plot_simulation_output
+from vivarium.library.units import units
 from vivarium.library.timeseries import (
     flatten_timeseries, load_timeseries,
     save_timeseries, assert_timeseries_close)
@@ -19,7 +20,7 @@ from vivarium.library.timeseries import (
 from vivarium.processes.ecoli_shape_deriver import EcoliShape
 from vivarium_multibody.processes.local_field import LocalField
 
-from vivarium_convenience.processes.convenience_kinetics import ConvenienceKinetics
+from vivarium_convenience.processes.convenience_kinetics import ConvenienceKinetics, get_glc_lct_config
 from vivarium_convenience.reference_data import REFERENCE_DATA_DIR
 
 NAME = 'convenience_composite'
@@ -29,7 +30,8 @@ class ConvenienceComposite(Composer):
     defaults = {
         'convenience_kinetics': {},
         'local_field': {},
-        'ecoli_shape': {}
+        'ecoli_shape': {
+            'width': 1.0}
     }
     def __init__(self, config):
         super().__init__(config)
@@ -43,15 +45,48 @@ class ConvenienceComposite(Composer):
 
     def generate_topology(self, config):
         return {
-            'convenience_kinetics': {},
-            'local_field': {},
-            'ecoli_shape': {},
+            'convenience_kinetics': {
+                'exchanges': ('exchanges',),
+                'external': ('external',),
+                'fluxes': ('fluxes',),
+                'global': ('global',),
+                'internal': ('internal',)
+            },
+            'local_field': {
+                'exchanges': ('exchanges',),
+                'location': ('location',),
+                'fields': ('fields',),
+                'dimensions': ('dimensions',),
+            },
+            'ecoli_shape': {
+                'global': ('global',)
+            },
         }
 
 
-def test_convenience_composite():
+def test_convenience_composite(total_time=2520):
+    config = {
+        'convenience_kinetics': get_glc_lct_config()}
+    composer = ConvenienceComposite(config)
+    composite = composer.generate()
 
-    import ipdb; ipdb.set_trace()
+    # get the initial state
+    initial_state = composite.initial_state()
+    initial_state['external'] = {
+            'glc__D_e': 1.0,
+            'lcts_e': 1.0}
+
+    # make the experiment and run it
+    settings = {
+        'environment': {
+            'volume': 1e-14 * units.L,
+            'concentrations': initial_state['external'],
+        },
+        'total_time': total_time}
+
+    experiment = composite_in_experiment(composite)
+    data = simulate_experiment(experiment, settings)
+    return data
 
 
 def test_convenience_kinetics_correlated_to_reference():

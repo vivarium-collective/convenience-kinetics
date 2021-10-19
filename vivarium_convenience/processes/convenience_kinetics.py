@@ -136,6 +136,11 @@ class ConvenienceKinetics(Process):
                      'internal': ['A', 'B', 'C', 'E'],
                  }
 
+             * **flux_unit** (:py:class:`str`): Unit for molecular
+               fluxes. This unit should match the units in which all
+               reactant, enzyme, and product concentrations are
+               stored.
+
      The ports of the process are the ports configured by the
      user, with the following modifications:
 
@@ -214,6 +219,7 @@ class ConvenienceKinetics(Process):
             'exchanges',
             'global'
         ],
+        'flux_unit': 'mM',
         }
 
     def __init__(self, parameters=None):
@@ -289,7 +295,8 @@ class ConvenienceKinetics(Process):
                     if port_id in port_state_id:
                         state_id = port_state_id[1]
                         state_flux = (
-                            coeff * flux * timestep * units.millimolar)
+                            coeff * flux * timestep *
+                            units(self.parameters['flux_unit']))
 
                         if port_id == 'external':
                             # convert exchange fluxes to counts with mmol_to_counts

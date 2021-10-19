@@ -136,6 +136,11 @@ class ConvenienceKinetics(Process):
                      'internal': ['A', 'B', 'C', 'E'],
                  }
 
+             * **flux_unit** (:py:class:`str`): Unit for molecular
+               fluxes. This unit should match the units in which all
+               reactant, enzyme, and product concentrations are
+               stored.
+
      The ports of the process are the ports configured by the
      user, with the following modifications:
 
@@ -214,6 +219,7 @@ class ConvenienceKinetics(Process):
             'exchanges',
             'global'
         ],
+        'flux_unit': 'mM',
         }
 
     def __init__(self, parameters=None):
@@ -288,18 +294,23 @@ class ConvenienceKinetics(Process):
                     # separate the state_id and port_id
                     if port_id in port_state_id:
                         state_id = port_state_id[1]
-                        state_flux = coeff * flux * timestep
+                        state_flux = (
+                            coeff * flux * timestep *
+                            units(self.parameters['flux_unit']))
 
                         if port_id == 'external':
                             # convert exchange fluxes to counts with mmol_to_counts
-                            delta = int((state_flux * mmol_to_counts).magnitude)
+                            delta = (state_flux * mmol_to_counts).to(
+                                units.count).magnitude
                             existing_delta = update['exchanges'].get(
-                                state_id, {}).get('_value', 0)
+                                state_id, 0)
                             update['exchanges'][state_id] = existing_delta + delta
+                        elif port_id == 'exchanges':
+                            continue
                         else:
                             update[port_id][state_id] = (
                                 update[port_id].get(state_id, 0)
-                                + state_flux
+                                + state_flux.magnitude
                             )
 
         # note: external and internal ports update change in mmol.
